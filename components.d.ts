@@ -12,14 +12,21 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AppHeader: typeof import('./src/components/AppHeader.vue')['default']
+    Avatar: typeof import('primevue/avatar')['default']
+    Badge: typeof import('primevue/badge')['default']
     Button: typeof import('primevue/button')['default']
     Card: typeof import('primevue/card')['default']
     Checkbox: typeof import('primevue/checkbox')['default']
+    Divider: typeof import('primevue/divider')['default']
     FloatLabel: typeof import('primevue/floatlabel')['default']
     Form: typeof import('@primevue/forms/form')['default']
     InputText: typeof import('primevue/inputtext')['default']
+    LoginForm: typeof import('./src/components/LoginForm.vue')['default']
     Message: typeof import('primevue/message')['default']
+    OverlayBadge: typeof import('primevue/overlaybadge')['default']
     Password: typeof import('primevue/password')['default']
+    RegisterForm: typeof import('./src/components/RegisterForm.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
@@ -27,14 +34,21 @@ declare module 'vue' {
 
 // For TSX support
 declare global {
+  const AppHeader: typeof import('./src/components/AppHeader.vue')['default']
+  const Avatar: typeof import('primevue/avatar')['default']
+  const Badge: typeof import('primevue/badge')['default']
   const Button: typeof import('primevue/button')['default']
   const Card: typeof import('primevue/card')['default']
   const Checkbox: typeof import('primevue/checkbox')['default']
+  const Divider: typeof import('primevue/divider')['default']
   const FloatLabel: typeof import('primevue/floatlabel')['default']
   const Form: typeof import('@primevue/forms/form')['default']
   const InputText: typeof import('primevue/inputtext')['default']
+  const LoginForm: typeof import('./src/components/LoginForm.vue')['default']
   const Message: typeof import('primevue/message')['default']
+  const OverlayBadge: typeof import('primevue/overlaybadge')['default']
   const Password: typeof import('primevue/password')['default']
+  const RegisterForm: typeof import('./src/components/RegisterForm.vue')['default']
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
 }
