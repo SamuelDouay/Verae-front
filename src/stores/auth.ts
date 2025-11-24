@@ -6,8 +6,32 @@ import type {
   LoginRequest,
   RegisterRequest,
   AuthResponse,
-  ApiResponse
+  ApiResponse,
+  ApiError
 } from '@/types/auth'
+
+function isApiError(error: unknown): error is { message: string; status?: number; code?: string } {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as any).message === 'string'
+  )
+}
+
+function getError(error: unknown): AuthResponse {
+  if (isApiError(error)) {
+    const apiError: ApiError = {
+      name: 'ApiError',
+      message: error.message,
+      status: error.status,
+      code: error.code
+    }
+    return { success: false, error: apiError.message }
+  }
+  return { success: false, error: 'Error Internal Server' }
+}
+
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
@@ -34,8 +58,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       return { success: true }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Erreur de connexion'
-      return { success: false, error: errorMessage }
+      return getError(error);
     }
   }
 
@@ -48,11 +71,7 @@ export const useAuthStore = defineStore('auth', () => {
         message: 'Compte créé avec succès ! Vous pouvez maintenant vous connecter.'
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Erreur lors de l'inscription"
-      return {
-        success: false,
-        error: errorMessage
-      }
+      return getError(error);
     }
   }
 
@@ -66,7 +85,7 @@ export const useAuthStore = defineStore('auth', () => {
         )
       }
     } catch (error) {
-      console.warn('Erreur lors de la déconnexion API:', error)
+      getError(error);
     } finally {
       user.value = null
       token.value = null
@@ -89,29 +108,7 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = response.data
       }
     } catch (error) {
-      console.error('Erreur lors de la récupération des infos utilisateur:', error)
-      // Si l'endpoint /users/me n'existe pas, on essaie autre chose
-      await tryAlternativeUserFetch()
-    }
-  }
-
-  const tryAlternativeUserFetch = async (): Promise<void> => {
-    if (!token.value) return
-
-    try {
-      // Alternative: récupérer la liste des utilisateurs et trouver le courant
-      // (ceci est un exemple, adapte-le à ton API)
-      const response = await apiService.get<ApiResponse<User[]>>(
-        '/users?limit=1',
-        { Authorization: `Bearer ${token.value}` }
-      )
-
-      if (response.data && response.data.length > 0) {
-        //user.value = response.data[0]
-      }
-    } catch (error) {
-      console.error('Alternative user fetch failed:', error)
-      await logout()
+      getError(error);
     }
   }
 

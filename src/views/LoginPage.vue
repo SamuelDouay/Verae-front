@@ -71,15 +71,6 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from 'primevue/usetoast'
 
-// PrimeVue components
-import Card from 'primevue/card'
-import Button from 'primevue/button'
-import InputText from 'primevue/inputtext'
-import Password from 'primevue/password'
-import FloatLabel from 'primevue/floatlabel'
-import Divider from 'primevue/divider'
-import Toast from 'primevue/toast'
-
 const router = useRouter()
 const authStore = useAuthStore()
 const toast = useToast()

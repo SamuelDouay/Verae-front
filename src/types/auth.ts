@@ -80,3 +80,8 @@ export interface ApiResponse<T = unknown> {
 export interface ListResponse<T = unknown> {
   data: T[]
 }
+
+export interface ApiError extends Error {
+  status?: number
+  code?: string
+}

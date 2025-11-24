@@ -16,8 +16,6 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth'
-import AppHeader from '@/components/AppHeader.vue'
-import Card from 'primevue/card'
 
 const authStore = useAuthStore()
 </script>

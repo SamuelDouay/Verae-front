@@ -29,6 +29,7 @@ declare module 'vue' {
     RegisterForm: typeof import('./src/components/RegisterForm.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Toast: typeof import('primevue/toast')['default']
   }
 }
 
@@ -51,4 +52,5 @@ declare global {
   const RegisterForm: typeof import('./src/components/RegisterForm.vue')['default']
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
+  const Toast: typeof import('primevue/toast')['default']
 }

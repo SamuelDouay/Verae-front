@@ -7,12 +7,9 @@ export interface ApiResponse<T = unknown> {
 }
 
 // Type pour les erreurs API
-export interface ApiError {
-  message: string
-  status?: number
-  code?: string
-}
-
+import type {
+  ApiError
+} from '@/types/auth'
 // Type générique pour les données de requête
 export type RequestData = unknown;
 
@@ -52,13 +49,14 @@ class ApiService {
         let errorMessage = `Erreur ${response.status}: ${response.statusText}`
 
         try {
-          const errorData = await response.json() as ApiError
-          errorMessage = errorData.message || errorMessage
+          const errorData = await response.json()
+          errorMessage = errorData.data || errorMessage
         } catch {
           // Si la réponse n'est pas du JSON, on utilise le statut
         }
 
         const error: ApiError = {
+          name: 'ApiError',
           message: errorMessage,
           status: response.status,
         }
