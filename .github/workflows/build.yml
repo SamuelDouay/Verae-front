@@ -13,13 +13,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
+      
+      # Étape 1 : Configurer Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.20.0'
+          cache: 'npm'
+      
+      # Étape 2 : Installer les dépendances
+      - name: Install dependencies
+        run: npm ci # Utilise 'npm ci' pour une installation propre et reproductible
+        # ou 'yarn install --frozen-lockfile' si vous utilisez Yarn
+      
+      # Étape 3 : Construire le projet (si nécessaire)
+      - name: Build project
+        run: npm run build # Adaptez selon votre script de build
+        # Certains projets peuvent nécessiter une compilation TypeScript avant l'analyse
+      
+      # Étape 4 : Exécuter SonarQube
       - uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      # If you wish to fail your job when the Quality Gate is red, uncomment the
-      # following lines. This would typically be used to fail a deployment.
+      
+      # Optionnel : Qualité Gate
       # - uses: SonarSource/sonarqube-quality-gate-action@v1
       #   timeout-minutes: 5
       #   env:
