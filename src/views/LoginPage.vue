@@ -11,39 +11,23 @@
 
         <template #content>
           <div class="p-fluid">
-            <div class="field">
-              <FloatLabel>
-                <InputText
-                  id="email"
-                  v-model="loginForm.email"
-                  type="email"
-                  :class="{ 'p-invalid': loginErrors.email }"
-                />
-                <label for="email">Email</label>
-              </FloatLabel>
-              <small class="p-error" v-if="loginErrors.email">{{ loginErrors.email }}</small>
-            </div>
-
-            <div class="field">
-              <FloatLabel>
-                <Password
-                  id="password"
-                  v-model="loginForm.password"
-                  :feedback="false"
-                  toggleMask
-                  :class="{ 'p-invalid': loginErrors.password }"
-                />
-                <label for="password">Mot de passe</label>
-              </FloatLabel>
-              <small class="p-error" v-if="loginErrors.password">{{ loginErrors.password }}</small>
-            </div>
-
-            <Button
-              label="Se connecter"
-              class="w-full"
-              :loading="loading"
-              @click="handleLogin"
+            <FormInput
+              id="email"
+              v-model="loginForm.email"
+              label="Email"
+              type="email"
+              :error="loginErrors.email"
             />
+
+            <FormInput
+              id="password"
+              v-model="loginForm.password"
+              label="Mot de passe"
+              type="password"
+              :error="loginErrors.password"
+            />
+
+            <Button label="Se connecter" class="w-full" :loading="loading" @click="handleLogin" />
 
             <Divider>
               <span class="p-tag">ou</span>
@@ -79,12 +63,12 @@ const loading = ref(false)
 
 const loginForm = reactive({
   email: '',
-  password: ''
+  password: '',
 })
 
 const loginErrors = reactive({
   email: '',
-  password: ''
+  password: '',
 })
 
 const validateLogin = () => {
@@ -94,10 +78,10 @@ const validateLogin = () => {
   loginErrors.password = ''
 
   if (!loginForm.email) {
-    loginErrors.email = 'L\'email est requis'
+    loginErrors.email = "L'email est requis"
     isValid = false
   } else if (!/\S+@\S+\.\S+/.test(loginForm.email)) {
-    loginErrors.email = 'Format d\'email invalide'
+    loginErrors.email = "Format d'email invalide"
     isValid = false
   }
 
@@ -121,7 +105,7 @@ const handleLogin = async () => {
       severity: 'success',
       summary: 'Connexion réussie',
       detail: 'Bienvenue !',
-      life: 3000
+      life: 3000,
     })
     router.push('/')
   } else {
@@ -129,7 +113,7 @@ const handleLogin = async () => {
       severity: 'error',
       summary: 'Erreur de connexion',
       detail: result.error,
-      life: 5000
+      life: 5000,
     })
   }
 }

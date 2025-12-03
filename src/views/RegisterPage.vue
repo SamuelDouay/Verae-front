@@ -11,74 +11,43 @@
 
         <template #content>
           <div class="p-fluid">
-            <div class="field">
-              <FloatLabel>
-                <InputText
-                  id="name"
-                  v-model="registerForm.name"
-                  :class="{ 'p-invalid': registerErrors.name }"
-                />
-                <label for="name">Prénom</label>
-              </FloatLabel>
-              <small class="p-error" v-if="registerErrors.name">{{ registerErrors.name }}</small>
-            </div>
-
-            <div class="field">
-              <FloatLabel>
-                <InputText
-                  id="surname"
-                  v-model="registerForm.surname"
-                  :class="{ 'p-invalid': registerErrors.surname }"
-                />
-                <label for="surname">Nom</label>
-              </FloatLabel>
-              <small class="p-error" v-if="registerErrors.surname">{{ registerErrors.surname }}</small>
-            </div>
-
-            <div class="field">
-              <FloatLabel>
-                <InputText
-                  id="email"
-                  v-model="registerForm.email"
-                  type="email"
-                  :class="{ 'p-invalid': registerErrors.email }"
-                />
-                <label for="email">Email</label>
-              </FloatLabel>
-              <small class="p-error" v-if="registerErrors.email">{{ registerErrors.email }}</small>
-            </div>
-
-            <div class="field">
-              <FloatLabel>
-                <Password
-                  id="password"
-                  v-model="registerForm.password"
-                  :feedback="false"
-                  toggleMask
-                  :class="{ 'p-invalid': registerErrors.password }"
-                />
-                <label for="password">Mot de passe</label>
-              </FloatLabel>
-              <small class="p-error" v-if="registerErrors.password">{{ registerErrors.password }}</small>
-            </div>
-
-            <Button
-              label="S'inscrire"
-              class="w-full"
-              :loading="loading"
-              @click="handleRegister"
+            <FormInput
+              id="name"
+              v-model="registerForm.name"
+              label="Prénom"
+              :error="registerErrors.name"
             />
+
+            <FormInput
+              id="surname"
+              v-model="registerForm.surname"
+              label="Nom"
+              :error="registerErrors.surname"
+            />
+
+            <FormInput
+              id="email"
+              v-model="registerForm.email"
+              label="Email"
+              type="email"
+              :error="registerErrors.email"
+            />
+
+            <FormInput
+              id="password"
+              v-model="registerForm.password"
+              label="Mot de passe"
+              type="password"
+              :error="registerErrors.password"
+            />
+
+            <Button label="S'inscrire" class="w-full" :loading="loading" @click="handleRegister" />
 
             <Divider>
               <span class="p-tag">ou</span>
             </Divider>
 
-            <Button
-              label="Se connecter"
-              severity="secondary"
-              class="w-full"
-              @click="goToLogin"
-            />
+            <Button label="Se connecter" severity="secondary" class="w-full" @click="goToLogin" />
           </div>
         </template>
       </Card>
@@ -94,6 +63,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from 'primevue/usetoast'
+import FormInput from '@/components/form/FormInput.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -105,14 +75,14 @@ const registerForm = reactive({
   name: '',
   surname: '',
   email: '',
-  password: ''
+  password: '',
 })
 
 const registerErrors = reactive({
   name: '',
   surname: '',
   email: '',
-  password: ''
+  password: '',
 })
 
 const validateRegister = () => {
@@ -134,10 +104,10 @@ const validateRegister = () => {
   }
 
   if (!registerForm.email) {
-    registerErrors.email = 'L\'email est requis'
+    registerErrors.email = "L'email est requis"
     isValid = false
   } else if (!/\S+@\S+\.\S+/.test(registerForm.email)) {
-    registerErrors.email = 'Format d\'email invalide'
+    registerErrors.email = "Format d'email invalide"
     isValid = false
   }
 
@@ -164,16 +134,16 @@ const handleRegister = async () => {
       severity: 'success',
       summary: 'Inscription réussie',
       detail: result.message,
-      life: 5000
+      life: 5000,
     })
     // Redirection vers la page de login après inscription réussie
     router.push('/login')
   } else {
     toast.add({
       severity: 'error',
-      summary: 'Erreur d\'inscription',
+      summary: "Erreur d'inscription",
       detail: result.error,
-      life: 5000
+      life: 5000,
     })
   }
 }

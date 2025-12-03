@@ -116,7 +116,7 @@ export const useAuthStore = defineStore('auth', () => {
   if (token.value) {
     setTimeout(() => {
       fetchUserInfo()
-    }, 1000)
+    }, 5)
   }
 
   return {
