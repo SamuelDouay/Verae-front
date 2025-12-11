@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => {
       vueDevTools(),
     ],
     server: {
+      host: '0.0.0.0',
       proxy: {
         '/api': {
           target: env.VITE_BACKEND_URL,
