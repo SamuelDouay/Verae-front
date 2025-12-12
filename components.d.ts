@@ -18,6 +18,8 @@ declare module 'vue' {
     Button: typeof import('primevue/button')['default']
     Card: typeof import('primevue/card')['default']
     Checkbox: typeof import('primevue/checkbox')['default']
+    Column: typeof import('primevue/column')['default']
+    DataTable: typeof import('primevue/datatable')['default']
     Divider: typeof import('primevue/divider')['default']
     FloatLabel: typeof import('primevue/floatlabel')['default']
     Form: typeof import('@primevue/forms/form')['default']
@@ -31,6 +33,7 @@ declare module 'vue' {
     RegisterForm: typeof import('./src/components/RegisterForm.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    TabPanel: typeof import('primevue/tabpanel')['default']
     Toast: typeof import('primevue/toast')['default']
   }
 }
@@ -43,6 +46,8 @@ declare global {
   const Button: typeof import('primevue/button')['default']
   const Card: typeof import('primevue/card')['default']
   const Checkbox: typeof import('primevue/checkbox')['default']
+  const Column: typeof import('primevue/column')['default']
+  const DataTable: typeof import('primevue/datatable')['default']
   const Divider: typeof import('primevue/divider')['default']
   const FloatLabel: typeof import('primevue/floatlabel')['default']
   const Form: typeof import('@primevue/forms/form')['default']
@@ -56,5 +61,6 @@ declare global {
   const RegisterForm: typeof import('./src/components/RegisterForm.vue')['default']
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
+  const TabPanel: typeof import('primevue/tabpanel')['default']
   const Toast: typeof import('primevue/toast')['default']
 }

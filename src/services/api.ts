@@ -26,14 +26,17 @@ class ApiService {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    extractData: boolean = true // Nouveau paramètre pour contrôler l'extraction
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`
+    const authHeaders = this.getAuthHeaders()
 
     const config: RequestInit = {
       ...options,
       headers: {
         ...this.defaultHeaders,
+        ...authHeaders,
         ...options.headers,
       }
     }
@@ -50,7 +53,7 @@ class ApiService {
 
         try {
           const errorData = await response.json()
-          errorMessage = errorData.data || errorMessage
+          errorMessage = errorData.message || errorData.data || errorMessage
         } catch {
           // Si la réponse n'est pas du JSON, on utilise le statut
         }
@@ -64,10 +67,23 @@ class ApiService {
       }
 
       if (response.status === 204) {
-        return {} as T
+        return (extractData ? {} : { data: {} }) as T
       }
 
-      return await response.json() as T
+      const jsonResponse = await response.json() as ApiResponse<T>
+
+      // Si extractData est true, retourner directement data, sinon retourner l'objet complet
+      if (extractData) {
+        // Vérifier si la réponse a une propriété data
+        if ('data' in jsonResponse) {
+          return jsonResponse.data as T
+        } else {
+          // Si pas de data, retourner l'objet complet
+          return jsonResponse as unknown as T
+        }
+      } else {
+        return jsonResponse as unknown as T
+      }
     } catch (error) {
       if (error instanceof TypeError) {
         throw new Error('Erreur de connexion au serveur. Vérifiez que le serveur backend est démarré et accessible.')
@@ -76,8 +92,9 @@ class ApiService {
     }
   }
 
+  // Méthodes normales qui extraient automatiquement data
   async get<T>(endpoint: string, headers?: HeadersInit): Promise<T> {
-    return this.request<T>(endpoint, { method: 'GET', headers })
+    return this.request<T>(endpoint, { method: 'GET', headers }, true)
   }
 
   async post<T>(endpoint: string, data?: RequestData, headers?: HeadersInit): Promise<T> {
@@ -86,7 +103,7 @@ class ApiService {
       method: 'POST',
       body,
       headers,
-    })
+    }, true)
   }
 
   async put<T>(endpoint: string, data?: RequestData, headers?: HeadersInit): Promise<T> {
@@ -95,7 +112,7 @@ class ApiService {
       method: 'PUT',
       body,
       headers,
-    })
+    }, true)
   }
 
   async patch<T>(endpoint: string, data?: RequestData, headers?: HeadersInit): Promise<T> {
@@ -104,11 +121,11 @@ class ApiService {
       method: 'PATCH',
       body,
       headers,
-    })
+    }, true)
   }
 
   async delete<T>(endpoint: string, headers?: HeadersInit): Promise<T> {
-    return this.request<T>(endpoint, { method: 'DELETE', headers })
+    return this.request<T>(endpoint, { method: 'DELETE', headers }, true)
   }
 
   // Méthode pour les uploads de fichiers (FormData)
@@ -118,9 +135,44 @@ class ApiService {
       body: formData,
       headers: {
         ...headers,
-        // Ne pas définir Content-Type pour FormData, le navigateur le fera automatiquement
       },
-    })
+    }, true)
+  }
+
+  // NOUVELLES MÉTHODES pour récupérer la réponse complète si besoin
+  async getFullResponse<T>(endpoint: string, headers?: HeadersInit): Promise<ApiResponse<T>> {
+    return this.request<ApiResponse<T>>(endpoint, { method: 'GET', headers }, false)
+  }
+
+  async postFullResponse<T>(endpoint: string, data?: RequestData, headers?: HeadersInit): Promise<ApiResponse<T>> {
+    const body = data ? JSON.stringify(data) : undefined
+    return this.request<ApiResponse<T>>(endpoint, {
+      method: 'POST',
+      body,
+      headers,
+    }, false)
+  }
+
+  async putFullResponse<T>(endpoint: string, data?: RequestData, headers?: HeadersInit): Promise<ApiResponse<T>> {
+    const body = data ? JSON.stringify(data) : undefined
+    return this.request<ApiResponse<T>>(endpoint, {
+      method: 'PUT',
+      body,
+      headers,
+    }, false)
+  }
+
+  async patchFullResponse<T>(endpoint: string, data?: RequestData, headers?: HeadersInit): Promise<ApiResponse<T>> {
+    const body = data ? JSON.stringify(data) : undefined
+    return this.request<ApiResponse<T>>(endpoint, {
+      method: 'PATCH',
+      body,
+      headers,
+    }, false)
+  }
+
+  async deleteFullResponse<T>(endpoint: string, headers?: HeadersInit): Promise<ApiResponse<T>> {
+    return this.request<ApiResponse<T>>(endpoint, { method: 'DELETE', headers }, false)
   }
 
   getAuthHeaders(token?: string): HeadersInit {
@@ -129,6 +181,23 @@ class ApiService {
 
     return {
       Authorization: `Bearer ${authToken}`,
+    }
+  }
+
+  // Méthodes utilitaires
+  setToken(token: string): void {
+    localStorage.setItem('token', token)
+  }
+
+  clearToken(): void {
+    localStorage.removeItem('token')
+  }
+
+  hasToken(): boolean {
+    try {
+      return !!localStorage.getItem('token')
+    } catch {
+      return false
     }
   }
 }

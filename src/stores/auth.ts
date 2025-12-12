@@ -45,13 +45,13 @@ export const useAuthStore = defineStore('auth', () => {
         credentials
       )
 
-      const authToken = response.token || response.data?.token
+      const authToken = response.token
 
       if (!authToken) {
         throw new Error('Token non reçu dans la réponse')
       }
 
-      localStorage.setItem('token', response.data?.token || '')
+      localStorage.setItem('token', authToken)
       isAuthenticated.value = true
 
       await fetchUserInfo()
@@ -104,8 +104,8 @@ export const useAuthStore = defineStore('auth', () => {
         { Authorization: `Bearer ${token.value}` }
       )
 
-      if (response.data) {
-        user.value = response.data
+      if (response) {
+        user.value = response
       }
     } catch (error) {
       getError(error);

@@ -10,14 +10,43 @@
           <p>Email: {{ authStore.user?.email }}</p>
         </template>
       </Card>
+
+      <DataTable :value="users" :loading="loading">
+        <template #header>
+          <h2>Liste User</h2>
+        </template>
+        <Column field="name" header="Name"></Column>
+        <Column field="surname" header="Surname"></Column>
+        <Column field="email" header="Email"></Column>
+        <Column field="admin" header="Role"></Column>
+      </DataTable>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { getUsers } from '@/services/user.api'
+import type { User } from '@/types/auth'
 
 const authStore = useAuthStore()
+const users = ref<User[]>([])
+const loading = ref(false)
+const error = ref<string>('')
+
+onMounted(async () => {
+  try {
+    loading.value = true
+    users.value = await getUsers()
+    console.log('Liste des utilisateurs dans usersList:', users.value)
+  } catch (err: any) {
+    console.error('Erreur lors de la récupération des utilisateurs:', err)
+    error.value = err.message || 'Impossible de charger la liste des utilisateurs'
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <style scoped>
