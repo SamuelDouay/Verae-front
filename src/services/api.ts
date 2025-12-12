@@ -10,12 +10,10 @@ export interface ApiResponse<T = unknown> {
 import type {
   ApiError
 } from '@/types/auth'
-// Type générique pour les données de requête
-export type RequestData = unknown;
 
 class ApiService {
-  private baseURL: string
-  private defaultHeaders: HeadersInit
+  private readonly baseURL: string
+  private readonly defaultHeaders: HeadersInit
 
   constructor() {
     this.baseURL = '/api'
@@ -97,7 +95,7 @@ class ApiService {
     return this.request<T>(endpoint, { method: 'GET', headers }, true)
   }
 
-  async post<T>(endpoint: string, data?: RequestData, headers?: HeadersInit): Promise<T> {
+  async post<T>(endpoint: string, data?: unknown, headers?: HeadersInit): Promise<T> {
     const body = data ? JSON.stringify(data) : undefined
     return this.request<T>(endpoint, {
       method: 'POST',
@@ -106,7 +104,7 @@ class ApiService {
     }, true)
   }
 
-  async put<T>(endpoint: string, data?: RequestData, headers?: HeadersInit): Promise<T> {
+  async put<T>(endpoint: string, data?: unknown, headers?: HeadersInit): Promise<T> {
     const body = data ? JSON.stringify(data) : undefined
     return this.request<T>(endpoint, {
       method: 'PUT',
@@ -115,7 +113,7 @@ class ApiService {
     }, true)
   }
 
-  async patch<T>(endpoint: string, data?: RequestData, headers?: HeadersInit): Promise<T> {
+  async patch<T>(endpoint: string, data?: unknown, headers?: HeadersInit): Promise<T> {
     const body = data ? JSON.stringify(data) : undefined
     return this.request<T>(endpoint, {
       method: 'PATCH',
@@ -144,7 +142,7 @@ class ApiService {
     return this.request<ApiResponse<T>>(endpoint, { method: 'GET', headers }, false)
   }
 
-  async postFullResponse<T>(endpoint: string, data?: RequestData, headers?: HeadersInit): Promise<ApiResponse<T>> {
+  async postFullResponse<T>(endpoint: string, data?: unknown, headers?: HeadersInit): Promise<ApiResponse<T>> {
     const body = data ? JSON.stringify(data) : undefined
     return this.request<ApiResponse<T>>(endpoint, {
       method: 'POST',
@@ -153,7 +151,7 @@ class ApiService {
     }, false)
   }
 
-  async putFullResponse<T>(endpoint: string, data?: RequestData, headers?: HeadersInit): Promise<ApiResponse<T>> {
+  async putFullResponse<T>(endpoint: string, data?: unknown, headers?: HeadersInit): Promise<ApiResponse<T>> {
     const body = data ? JSON.stringify(data) : undefined
     return this.request<ApiResponse<T>>(endpoint, {
       method: 'PUT',
@@ -162,7 +160,7 @@ class ApiService {
     }, false)
   }
 
-  async patchFullResponse<T>(endpoint: string, data?: RequestData, headers?: HeadersInit): Promise<ApiResponse<T>> {
+  async patchFullResponse<T>(endpoint: string, data?: unknown, headers?: HeadersInit): Promise<ApiResponse<T>> {
     const body = data ? JSON.stringify(data) : undefined
     return this.request<ApiResponse<T>>(endpoint, {
       method: 'PATCH',

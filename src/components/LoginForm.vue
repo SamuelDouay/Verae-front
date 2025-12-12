@@ -33,5 +33,3 @@ const navigateToRegister = () => {
   router.push('/register')
 }
 </script>
-
-<style scoped></style>
