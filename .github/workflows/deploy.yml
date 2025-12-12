@@ -47,7 +47,7 @@ jobs:
             cd ~/opt/vera
 
             # Pull latest image
-            docker pull unetrehumain/vera-front:latest
+            sudo docker pull unetrehumain/vera-front:latest
             
             # Stop and remove old container
             sudo docker compose down
