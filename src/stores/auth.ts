@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { apiService } from '@/services/api'
 import type {
   User,
   LoginRequest,
   RegisterRequest,
   AuthResponse,
-  ApiResponse,
   ApiError
 } from '@/types/auth'
+import { getMe } from '@/services/user.api';
+import { aapilogin, apilogout, apiregister } from '@/services/auth.api';
 
 function isApiError(error: unknown): error is { message: string; status?: number; code?: string } {
   return (
@@ -40,10 +40,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const login = async (credentials: LoginRequest): Promise<AuthResponse> => {
     try {
-      const response = await apiService.post<ApiResponse<{ token?: string }>>(
-        '/auth/login',
-        credentials
-      )
+      const response = await aapilogin(credentials);
 
       const authToken = response.token
 
@@ -64,8 +61,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const register = async (userData: RegisterRequest): Promise<AuthResponse> => {
     try {
-      await apiService.post<ApiResponse>('/auth/register', userData)
-
+      await apiregister(userData);
       return {
         success: true,
         message: 'Compte créé avec succès ! Vous pouvez maintenant vous connecter.'
@@ -78,11 +74,7 @@ export const useAuthStore = defineStore('auth', () => {
   const logout = async (): Promise<void> => {
     try {
       if (token.value) {
-        await apiService.post(
-          '/auth/logout',
-          {},
-          { Authorization: `Bearer ${token.value}` }
-        )
+        await apilogout();
       }
     } catch (error) {
       getError(error);
@@ -99,10 +91,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
 
-      const response = await apiService.get<ApiResponse<User>>(
-        '/users/me',
-        { Authorization: `Bearer ${token.value}` }
-      )
+      const response = await getMe();
 
       if (response) {
         user.value = response

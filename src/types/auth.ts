@@ -72,6 +72,7 @@ export interface SurveyFilters extends BaseFilters {
 // Réponse API générique basée sur ton OpenAPI
 export interface ApiResponse<T = unknown> {
   data?: T
+  token?: string 
   message?: string
   [key: string]: unknown
 }
