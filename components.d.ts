@@ -13,6 +13,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppHeader: typeof import('./src/components/AppHeader.vue')['default']
+    Badge: typeof import('primevue/badge')['default']
     Button: typeof import('primevue/button')['default']
     Card: typeof import('primevue/card')['default']
     Column: typeof import('primevue/column')['default']
@@ -20,18 +21,25 @@ declare module 'vue' {
     Divider: typeof import('primevue/divider')['default']
     FloatLabel: typeof import('primevue/floatlabel')['default']
     FormInput: typeof import('./src/components/form/FormInput.vue')['default']
+    GenericDataTable: typeof import('./src/components/GenericDataTable.vue')['default']
     InputText: typeof import('primevue/inputtext')['default']
     LoginForm: typeof import('./src/components/LoginForm.vue')['default']
+    QuestionList: typeof import('./src/components/QuestionList.vue')['default']
     RegisterForm: typeof import('./src/components/RegisterForm.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Toast: typeof import('primevue/toast')['default']
+    UserList: typeof import('./src/components/UserList.vue')['default']
+  }
+  export interface GlobalDirectives {
+    Tooltip: typeof import('primevue/tooltip')['default']
   }
 }
 
 // For TSX support
 declare global {
   const AppHeader: typeof import('./src/components/AppHeader.vue')['default']
+  const Badge: typeof import('primevue/badge')['default']
   const Button: typeof import('primevue/button')['default']
   const Card: typeof import('primevue/card')['default']
   const Column: typeof import('primevue/column')['default']
@@ -39,10 +47,13 @@ declare global {
   const Divider: typeof import('primevue/divider')['default']
   const FloatLabel: typeof import('primevue/floatlabel')['default']
   const FormInput: typeof import('./src/components/form/FormInput.vue')['default']
+  const GenericDataTable: typeof import('./src/components/GenericDataTable.vue')['default']
   const InputText: typeof import('primevue/inputtext')['default']
   const LoginForm: typeof import('./src/components/LoginForm.vue')['default']
+  const QuestionList: typeof import('./src/components/QuestionList.vue')['default']
   const RegisterForm: typeof import('./src/components/RegisterForm.vue')['default']
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
   const Toast: typeof import('primevue/toast')['default']
+  const UserList: typeof import('./src/components/UserList.vue')['default']
 }

@@ -20,6 +20,8 @@
         <Column field="email" header="Email"></Column>
         <Column field="admin" header="Role"></Column>
       </DataTable>
+
+      <UserList/>
     </div>
   </div>
 </template>
@@ -28,7 +30,7 @@
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { getUsers } from '@/services/user.api'
-import type { User } from '@/types/auth'
+import type { User } from '@/types/user'
 
 const authStore = useAuthStore()
 const users = ref<User[]>([])
