@@ -1,83 +1,100 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type {
-  User,
-  LoginRequest,
-  RegisterRequest,
-  AuthResponse,
-  ApiError
-} from '@/types/auth'
-import { getMe } from '@/services/user.api';
-import { aapilogin, apilogout, apiregister } from '@/services/auth.api';
+import type { LoginRequest, RegisterRequest } from '@/types/auth'
+import type { User } from '@/types/user'
+import { getMe } from '@/services/user.api'
+import { apiLogin, apiLogout, apiRegister } from '@/services/auth.api'
 
-function isApiError(error: unknown): error is { message: string; status?: number; code?: string } {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'message' in error &&
-    typeof (error as any).message === 'string'
-  )
+// Type pour les réponses d'authentification
+interface AuthStoreResponse {
+  success: boolean
+  message?: string
+  error?: string
 }
 
-function getError(error: unknown): AuthResponse {
-  if (isApiError(error)) {
-    const apiError: ApiError = {
-      name: 'ApiError',
-      message: error.message,
-      status: error.status,
-      code: error.code
+function getError(error: unknown): AuthStoreResponse {
+  // Si c'est une ApiResponse avec une erreur
+  if (error && typeof error === 'object' && 'error' in error) {
+    const apiError = error as { error: { message?: string; status?: string; code?: number } }
+    return {
+      success: false,
+      error: apiError.error.message || 'Erreur serveur'
     }
-    return { success: false, error: apiError.message }
   }
-  return { success: false, error: 'Error Internal Server' }
-}
 
+  // Si c'est une Error standard
+  if (error instanceof Error) {
+    return {
+      success: false,
+      error: error.message
+    }
+  }
+
+  // Erreur générique
+  return {
+    success: false,
+    error: 'Une erreur est survenue'
+  }
+}
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
   const token = ref<string | null>(localStorage.getItem('token'))
   const isAuthenticated = ref(!!token.value)
 
-  const login = async (credentials: LoginRequest): Promise<AuthResponse> => {
+  const login = async (credentials: LoginRequest): Promise<AuthStoreResponse> => {
     try {
-      const response = await aapilogin(credentials);
+      const response = await apiLogin(credentials)
+      let authToken: string | undefined
 
-      const authToken = response.token
+      if ('token' in response) {
+        authToken = response.token
+      }
 
       if (!authToken) {
         throw new Error('Token non reçu dans la réponse')
       }
 
       localStorage.setItem('token', authToken)
+      token.value = authToken
       isAuthenticated.value = true
 
       await fetchUserInfo()
 
       return { success: true }
     } catch (error) {
-      return getError(error);
+      return getError(error)
     }
   }
 
-  const register = async (userData: RegisterRequest): Promise<AuthResponse> => {
+  const register = async (userData: RegisterRequest): Promise<AuthStoreResponse> => {
     try {
-      await apiregister(userData);
+      const response = await apiRegister(userData)
+
+      // Vérifier si la réponse a réussi
+      if ('success' in response && response.success === false) {
+        return {
+          success: false,
+          error: "Erreur lors de l'inscription"
+        }
+      }
+
       return {
         success: true,
         message: 'Compte créé avec succès ! Vous pouvez maintenant vous connecter.'
       }
     } catch (error) {
-      return getError(error);
+      return getError(error)
     }
   }
 
   const logout = async (): Promise<void> => {
     try {
       if (token.value) {
-        await apilogout();
+        await apiLogout()
       }
     } catch (error) {
-      getError(error);
+      console.error('Erreur lors de la déconnexion:', error)
     } finally {
       user.value = null
       token.value = null
@@ -90,14 +107,11 @@ export const useAuthStore = defineStore('auth', () => {
     if (!token.value) return
 
     try {
-
-      const response = await getMe();
-
-      if (response) {
-        user.value = response
-      }
+      const response = await getMe()
+      user.value = response as User
     } catch (error) {
-      getError(error);
+      console.error('Erreur lors de la récupération des informations utilisateur:', error)
+      logout()
     }
   }
 

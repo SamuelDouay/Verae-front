@@ -21,13 +21,3 @@ export interface MemoryUsage {
   used: number;
   percentage: number;
 }
-
-export interface HealthCheckResponse {
-  status: string;
-  components: Record<string, HealthComponent>;
-}
-
-export interface HealthComponent {
-  status: string;
-  details?: Record<string, any>;
-}

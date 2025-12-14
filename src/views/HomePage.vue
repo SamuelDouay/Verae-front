@@ -35,16 +35,14 @@ import type { User } from '@/types/user'
 const authStore = useAuthStore()
 const users = ref<User[]>([])
 const loading = ref(false)
-const error = ref<string>('')
 
 onMounted(async () => {
   try {
     loading.value = true
     users.value = await getUsers()
     console.log('Liste des utilisateurs dans usersList:', users.value)
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Erreur lors de la récupération des utilisateurs:', err)
-    error.value = err.message || 'Impossible de charger la liste des utilisateurs'
   } finally {
     loading.value = false
   }

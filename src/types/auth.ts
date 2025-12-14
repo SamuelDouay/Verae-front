@@ -26,10 +26,27 @@ export interface AuthResponse {
   user: UserProfile;
 }
 
+export interface LoginResponse  {
+  token: string;
+  refreshToken: string;
+  tokenType: string;
+  expiresIn: number;
+  user: UserProfile;
+}
+
 export interface UserProfile {
   id: number;
   name: string;
   surname: string;
   email: string;
   admin: boolean;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
 }
