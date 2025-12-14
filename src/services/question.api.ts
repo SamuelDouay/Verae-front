@@ -1,22 +1,16 @@
+import { BaseService } from './base.api';
 import { apiService } from '@/services/api';
 import type { Question } from '@/types/question';
 
-export function getAll(): Promise<Question[]> {
-  return apiService.get<Question[]>('/questions');
+class QuestionService extends BaseService<Question> {
+  constructor() {
+    super('questions');
+  }
+
+  // Méthodes spécifiques aux questions
+  async getByCategory(categoryId: number): Promise<Question[]> {
+    return apiService.get<Question[]>(`/questions/category/${categoryId}`);
+  }
 }
 
-export function getQuestionById(id: number): Promise<Question> {
-  return apiService.get<Question>(`/questions/${id}`);
-}
-
-export function createQuestion(question: Partial<Question>): Promise<Question> {
-  return apiService.post<Question>('/questions', question);
-}
-
-export function updateQuestion(id: number, question: Partial<Question>): Promise<Question> {
-  return apiService.put<Question>(`/questions/${id}`, question);
-}
-
-export function deleteQuestion(id: number): Promise<void> {
-  return apiService.delete<void>(`/questions/${id}`);
-}
+export const questionService = new QuestionService();

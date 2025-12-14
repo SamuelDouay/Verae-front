@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { LoginRequest, RegisterRequest } from '@/types/auth'
 import type { User } from '@/types/user'
-import { getMe } from '@/services/user.api'
+import { userService } from '@/services/user.api'
 import { apiLogin, apiLogout, apiRegister } from '@/services/auth.api'
 
 // Type pour les réponses d'authentification
@@ -18,7 +18,7 @@ function getError(error: unknown): AuthStoreResponse {
     const apiError = error as { error: { message?: string; status?: string; code?: number } }
     return {
       success: false,
-      error: apiError.error.message || 'Erreur serveur'
+      error: apiError.error.message || 'Erreur serveur',
     }
   }
 
@@ -26,14 +26,14 @@ function getError(error: unknown): AuthStoreResponse {
   if (error instanceof Error) {
     return {
       success: false,
-      error: error.message
+      error: error.message,
     }
   }
 
   // Erreur générique
   return {
     success: false,
-    error: 'Une erreur est survenue'
+    error: 'Une erreur est survenue',
   }
 }
 
@@ -75,13 +75,13 @@ export const useAuthStore = defineStore('auth', () => {
       if ('success' in response && response.success === false) {
         return {
           success: false,
-          error: "Erreur lors de l'inscription"
+          error: "Erreur lors de l'inscription",
         }
       }
 
       return {
         success: true,
-        message: 'Compte créé avec succès ! Vous pouvez maintenant vous connecter.'
+        message: 'Compte créé avec succès ! Vous pouvez maintenant vous connecter.',
       }
     } catch (error) {
       return getError(error)
@@ -107,7 +107,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (!token.value) return
 
     try {
-      const response = await getMe()
+      const response = await userService.getMe()
       user.value = response as User
     } catch (error) {
       console.error('Erreur lors de la récupération des informations utilisateur:', error)

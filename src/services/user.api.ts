@@ -1,22 +1,20 @@
-import { apiService } from '@/services/api';
-import type { User } from '@/types/user';
+import { BaseService } from './base.api'
+import { apiService } from '@/services/api'
+import type { User } from '@/types/user'
 
-export function getUsers(): Promise<User[]> {
-    return apiService.get<User[]>('/users');
+class UserService extends BaseService<User> {
+  constructor() {
+    super('users')
+  }
+
+  // Surcharger ou ajouter des méthodes spécifiques
+  async getMe(): Promise<User> {
+    return apiService.get<User>('/users/me')
+  }
+
+  async updateProfile(data: Partial<User>): Promise<User> {
+    return apiService.put<User>('/users/profile', data)
+  }
 }
 
-export function getUserById(userId: string): Promise<User> {
-    return apiService.get<User>(`/users/${userId}`);
-}
-
-export function getMe(): Promise<User> {
-    return apiService.get<User>('/users/me');
-}
-
-export function updateUser(userId: string, userData: Partial<User>): Promise<User> {
-    return apiService.put<User>(`/users/${userId}`, userData);
-}
-
-export function deleteUser(userId: string): Promise<void> {
-    return apiService.delete<void>(`/users/${userId}`);
-}
+export const userService = new UserService()

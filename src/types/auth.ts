@@ -13,7 +13,7 @@ export interface RegisterRequest {
 export interface RefreshRequest {
   refreshToken: string;
 }
-
+  
 export interface ResetPasswordRequest {
   email?: string;
   newPassword?: string;
