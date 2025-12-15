@@ -10,7 +10,7 @@
         </template>
 
         <template #content>
-          <div class="p-fluid">
+          <Form class="w-full"  @submit="handleLogin">
             <FormInput
               id="email"
               v-model="loginForm.email"
@@ -27,10 +27,10 @@
               :error="loginErrors.password"
             />
 
-            <Button label="Se connecter" class="w-full" :loading="loading" @click="handleLogin" />
+            <Button label="Se connecter" type="submit" class="w-full" :loading="loading" />
 
             <Divider>
-              <span class="p-tag">ou</span>
+              <span>ou</span>
             </Divider>
 
             <Button
@@ -39,7 +39,7 @@
               class="w-full"
               @click="goToRegister"
             />
-          </div>
+          </Form>
         </template>
       </Card>
 

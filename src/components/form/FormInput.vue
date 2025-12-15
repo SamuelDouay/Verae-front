@@ -1,5 +1,5 @@
 <template>
-  <div class="field">
+  <div class="field w-full">
     <FloatLabel variant="on">
       <InputText
         :id="id"

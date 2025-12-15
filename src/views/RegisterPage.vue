@@ -10,7 +10,7 @@
         </template>
 
         <template #content>
-          <div class="p-fluid">
+          <Form class="p-fluid" @submit="handleRegister">
             <FormInput
               id="name"
               v-model="registerForm.name"
@@ -41,14 +41,14 @@
               :error="registerErrors.password"
             />
 
-            <Button label="S'inscrire" class="w-full" :loading="loading" @click="handleRegister" />
+            <Button type="submit" label="S'inscrire" class="w-full" :loading="loading" />
 
             <Divider>
               <span class="p-tag">ou</span>
             </Divider>
 
             <Button label="Se connecter" severity="secondary" class="w-full" @click="goToLogin" />
-          </div>
+          </Form>
         </template>
       </Card>
 
