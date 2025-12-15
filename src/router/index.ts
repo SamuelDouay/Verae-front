@@ -24,6 +24,30 @@ const router = createRouter({
       meta: { requiresGuest: true }
     },
     {
+      path: '/survey',
+      name: 'survey',
+      component: () => import('@/views/SurveyPage.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: () => import('@/views/DashboardPage.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('@/views/ProfilPage.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('@/views/AdminPage.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/:pathMatch(.*)*',
       redirect: '/'
     }

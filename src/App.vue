@@ -1,6 +1,6 @@
 <template>
+  <AppHeader />
   <RouterView />
 </template>
 
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>

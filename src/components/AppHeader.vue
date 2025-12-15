@@ -5,6 +5,14 @@
         <h2>VERA</h2>
       </div>
 
+      <div>
+        <Button label="Accueil" severity="secondary" size="small" @click="$router.push('/')" />
+        <Button label="Tableau de bord" severity="secondary" size="small" @click="$router.push('/dashboard')" />
+        <Button label="Profil" severity="secondary" size="small" @click="$router.push('/profile')" />
+        <Button label="Sondage" severity="secondary" size="small" @click="$router.push('/survey')" />
+        <Button label="Administration" severity="secondary" size="small" @click="$router.push('/admin')" v-if="authStore.user?.admin === true" />
+      </div>
+
       <div class="user-menu" v-if="authStore.isAuthenticated">
         <span>Bonjour, {{ authStore.user?.name }}</span>
         <Button label="Déconnexion" severity="secondary" size="small" @click="handleLogout" />
