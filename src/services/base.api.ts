@@ -7,7 +7,7 @@ export class BaseService<T, CreateDto = Partial<T>, UpdateDto = Partial<T>> {
     return apiService.get<T[]>(`/${this.endpoint}`);
   }
 
-  async getById(id: string | number): Promise<T> {
+  async getById(id: string | number | undefined): Promise<T> {
     return apiService.get<T>(`/${this.endpoint}/${id}`);
   }
 

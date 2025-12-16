@@ -33,14 +33,14 @@
         :rows-per-page="5"
       />
 
-      <GenericDataTable
-        title="Liste des Questionnaires"
-        :columns="surveyColumns"
-        :fetch-function="fetchSurveys"
-        :paginator="true"
-        :show-search="true"
-        :show-footer="true"
-      />
+<GenericDataTable
+  title="Liste des Questionnaires"
+  :columns="surveyColumns"
+  :fetch-function="fetchSurveys"
+  :paginator="true"
+  :show-search="true"
+  :show-footer="true"
+/>
     </div>
   </div>
 </template>

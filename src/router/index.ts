@@ -29,6 +29,14 @@ const router = createRouter({
       component: () => import('@/views/SurveyPage.vue'),
       meta: { requiresAuth: true }
     },
+
+    {
+      path: '/survey/:slug',
+      name: 'survey-slug',
+      component: () => import('@/views/SurveyDetailPage.vue'),
+      meta: { requiresAuth: true },
+      props: true // Passe les paramètres comme props au composant
+    },
     {
       path: '/dashboard',
       name: 'dashboard',

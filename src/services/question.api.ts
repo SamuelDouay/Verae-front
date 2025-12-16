@@ -11,6 +11,10 @@ class QuestionService extends BaseService<Question> {
   async getByCategory(categoryId: number): Promise<Question[]> {
     return apiService.get<Question[]>(`/questions/category/${categoryId}`);
   }
+
+  async getByIdSurvey(surveyId: number): Promise<Question[]> {
+    return apiService.get<Question[]>(`/questions/survey/${surveyId}`);
+  }
 }
 
 export const questionService = new QuestionService();
