@@ -1,32 +1,20 @@
 <template>
-  <div class="survey-page">
-    <h1>Sondage : {{ slug }}</h1>
-
-    <!-- État de chargement -->
-    <div v-if="loading" class="loading">Chargement...</div>
-
-    <!-- État d'erreur -->
-    <div v-else-if="error" class="error">{{ error }}</div>
-
-    <!-- Aucun sondage trouvé -->
-    <div v-else-if="!survey" class="no-data">Aucun sondage trouvé</div>
-
-    <!-- Affichage des données du sondage -->
-    <div v-else class="survey-details">
-      <p>ID numérique : {{ surveyId }}</p>
-      <p>Name : {{ survey.name }}</p>
-      <p>Description : {{ survey.description }}</p>
-      <p>Créateur ID : {{ survey.userId }}</p>
-      <p>Anonymisation : {{ survey.anonymization }}</p>
-      <p>Quiz : {{ survey.quiz }}</p>
-      <p>Actif : {{ survey.active }}</p>
-      <p>Édition : {{ survey.editing }}</p>
-      <p>Token : {{ survey.shareToken }}</p>
-      <p>Public : {{ survey.public }}</p>
-
-      <!-- Tableau générique des questions -->
+  <Card>
+    <template #title v-if="loading">Chargement...</template>
+    <template #title v-else-if="error">{{ error }}</template>
+    <template #title v-else-if="!survey">Aucun sondage trouvé</template>
+    <template #title v-else>{{ survey.name }}</template>
+    <template #subtitle>{{ survey?.description }}</template>
+    <template #content>
+      <div>
+        <p>Anonymisation : {{ survey?.anonymization }}</p>
+        <p>Quiz : {{ survey?.quiz }}</p>
+        <p>Actif : {{ survey?.active }}</p>
+        <p>Édition : {{ survey?.editing }}</p>
+        <p>Token : {{ survey?.shareToken }}</p>
+        <p>Public : {{ survey?.public }}</p>
+      </div>
       <GenericDataTable
-        title="Liste des Questions"
         :columns="questionColumns"
         :fetch-function="fetchQuestions"
         :paginator="true"
@@ -36,12 +24,12 @@
       <div v-if="questionsLoading">Chargement des questions...</div>
       <div v-else-if="questionsError" class="error">{{ questionsError }}</div>
       <div v-else-if="questions.length === 0">Aucune question trouvée</div>
-      <div v-else>
+      <div v-else class="questions-list">
         <h3>Questions ({{ questions.length }}) :</h3>
         <QuestionComponent v-for="question in questions" :key="question.id" :question="question" />
       </div>
-    </div>
-  </div>
+    </template>
+  </Card>
 </template>
 
 <script setup lang="ts">
@@ -145,4 +133,11 @@ watch(surveyId, () => {
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+.questions-list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+</style>
