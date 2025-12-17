@@ -3,7 +3,7 @@
     <template #title v-if="loading">Chargement...</template>
     <template #title v-else-if="error">{{ error }}</template>
     <template #title v-else-if="!survey">Aucun sondage trouvé</template>
-    <template #title v-else>{{ survey.name }}</template>
+    <template #title v-else>{{ survey?.name }}</template>
     <template #subtitle>{{ survey?.description }}</template>
     <template #content>
       <div>
