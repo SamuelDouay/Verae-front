@@ -1,61 +1,55 @@
 <template>
-  <div class="register-page">
-    <div class="container">
-      <Card class="register-card">
-        <template #header>
-          <div class="card-header">
-            <h2>Créer un compte</h2>
-            <p>Rejoignez la communauté VERA</p>
-          </div>
-        </template>
+  <Card class="auth-container">
+    <template #header>
+        <h2>Créer un compte</h2>
+        <p>Rejoignez la communauté VERA</p>
+    </template>
 
-        <template #content>
-          <Form class="p-fluid" @submit="handleRegister">
-            <FormInput
-              id="name"
-              v-model="registerForm.name"
-              label="Prénom"
-              :error="registerErrors.name"
-            />
+    <template #content>
+      <Form @submit="handleRegister">
+        <FormInput
+          id="name"
+          v-model="registerForm.name"
+          label="Prénom"
+          :error="registerErrors.name"
+        />
 
-            <FormInput
-              id="surname"
-              v-model="registerForm.surname"
-              label="Nom"
-              :error="registerErrors.surname"
-            />
+        <FormInput
+          id="surname"
+          v-model="registerForm.surname"
+          label="Nom"
+          :error="registerErrors.surname"
+        />
 
-            <FormInput
-              id="email"
-              v-model="registerForm.email"
-              label="Email"
-              type="email"
-              :error="registerErrors.email"
-            />
+        <FormInput
+          id="email"
+          v-model="registerForm.email"
+          label="Email"
+          type="email"
+          :error="registerErrors.email"
+        />
 
-            <FormInput
-              id="password"
-              v-model="registerForm.password"
-              label="Mot de passe"
-              type="password"
-              :error="registerErrors.password"
-            />
+        <FormInput
+          id="password"
+          v-model="registerForm.password"
+          label="Mot de passe"
+          type="password"
+          :error="registerErrors.password"
+        />
 
-            <Button type="submit" label="S'inscrire" class="w-full" :loading="loading" />
+        <Button type="submit" label="S'inscrire" :loading="loading" />
 
-            <Divider>
-              <span class="p-tag">ou</span>
-            </Divider>
+        <Divider>
+          <span>ou</span>
+        </Divider>
 
-            <Button label="Se connecter" severity="secondary" class="w-full" @click="goToLogin" />
-          </Form>
-        </template>
-      </Card>
+        <Button label="Se connecter" severity="secondary" @click="goToLogin" />
+      </Form>
+    </template>
+  </Card>
 
-      <!-- Toast pour les notifications -->
-      <Toast />
-    </div>
-  </div>
+  <!-- Toast pour les notifications -->
+  <Toast />
 </template>
 
 <script setup lang="ts">
@@ -152,52 +146,3 @@ const goToLogin = () => {
   router.push('/login')
 }
 </script>
-
-<style scoped>
-.register-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  padding: 20px;
-}
-
-.container {
-  width: 100%;
-  max-width: 400px;
-}
-
-.register-card {
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.card-header {
-  text-align: center;
-  color: var(--primary-color);
-}
-
-.card-header h2 {
-  margin: 0 0 8px 0;
-  color: var(--text-color);
-}
-
-.card-header p {
-  margin: 0;
-  color: var(--text-color-secondary);
-}
-
-.field {
-  margin-bottom: 1.5rem;
-}
-
-.w-full {
-  width: 100%;
-}
-
-:deep(.p-divider .p-tag) {
-  background: var(--surface-ground);
-  color: var(--text-color-secondary);
-  padding: 0.25rem 0.75rem;
-}
-</style>

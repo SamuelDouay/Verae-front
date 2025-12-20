@@ -1,5 +1,4 @@
 <template>
-  <div class="field w-full">
     <FloatLabel variant="on">
       <InputText
         :id="id"
@@ -15,7 +14,6 @@
     </FloatLabel>
     <small v-if="error" class="p-error">{{ error }}</small>
     <small v-else-if="helperText" class="p-helper-text">{{ helperText }}</small>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -56,6 +54,7 @@ const inputClasses = computed(() => ({
   'input-small': props.size === 'small',
   'input-large': props.size === 'large',
   'input-disabled': props.disabled,
+  'w-full': true,
 }))
 
 const onBlur = () => {
@@ -66,31 +65,3 @@ const onInput = (event: Event) => {
   emit('input', (event.target as HTMLInputElement).value)
 }
 </script>
-
-<style scoped>
-.field {
-  margin-bottom: 1.5rem;
-}
-
-.input-small {
-  font-size: 0.875rem;
-  padding: 0.5rem 0.75rem;
-}
-
-.input-large {
-  font-size: 1.125rem;
-  padding: 0.875rem 1rem;
-}
-
-.input-disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.p-helper-text {
-  color: var(--text-color-secondary);
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-  display: block;
-}
-</style>

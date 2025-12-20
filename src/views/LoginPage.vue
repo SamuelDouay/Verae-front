@@ -1,52 +1,41 @@
 <template>
-  <div class="login-page">
-    <div class="container">
-      <Card class="login-card">
-        <template #header>
-          <div class="card-header">
-            <h2>Bienvenue sur VERA</h2>
-            <p>Connectez-vous à votre compte</p>
-          </div>
-        </template>
+  <Card class="auth-container">
+    <template #header>
+      <h2>Bienvenue sur VERA</h2>
+      <p>Connectez-vous à votre compte</p>
+    </template>
 
-        <template #content>
-          <Form class="w-full"  @submit="handleLogin">
-            <FormInput
-              id="email"
-              v-model="loginForm.email"
-              label="Email"
-              type="email"
-              :error="loginErrors.email"
-            />
+    <template #content>
+      <Form @submit="handleLogin">
+        <FormInput
+          id="email"
+          v-model="loginForm.email"
+          label="Email"
+          type="email"
+          :error="loginErrors.email"
+        />
 
-            <FormInput
-              id="password"
-              v-model="loginForm.password"
-              label="Mot de passe"
-              type="password"
-              :error="loginErrors.password"
-            />
+        <FormInput
+          id="password"
+          v-model="loginForm.password"
+          label="Mot de passe"
+          type="password"
+          :error="loginErrors.password"
+        />
 
-            <Button label="Se connecter" type="submit" class="w-full" :loading="loading" />
+        <Button label="Se connecter" type="submit" :loading="loading" />
 
-            <Divider>
-              <span>ou</span>
-            </Divider>
+        <Divider>
+          <span>ou</span>
+        </Divider>
 
-            <Button
-              label="Créer un compte"
-              severity="secondary"
-              class="w-full"
-              @click="goToRegister"
-            />
-          </Form>
-        </template>
-      </Card>
+        <Button label="Créer un compte" severity="secondary" @click="goToRegister" />
+      </Form>
+    </template>
+  </Card>
 
-      <!-- Toast pour les notifications -->
-      <Toast />
-    </div>
-  </div>
+  <!-- Toast pour les notifications -->
+  <Toast />
 </template>
 
 <script setup lang="ts">
@@ -122,52 +111,3 @@ const goToRegister = () => {
   router.push('/register')
 }
 </script>
-
-<style scoped>
-.login-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
-}
-
-.container {
-  width: 100%;
-  max-width: 400px;
-}
-
-.login-card {
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.card-header {
-  text-align: center;
-  color: var(--primary-color);
-}
-
-.card-header h2 {
-  margin: 0 0 8px 0;
-  color: var(--text-color);
-}
-
-.card-header p {
-  margin: 0;
-  color: var(--text-color-secondary);
-}
-
-.field {
-  margin-bottom: 1.5rem;
-}
-
-.w-full {
-  width: 100%;
-}
-
-:deep(.p-divider .p-tag) {
-  background: var(--surface-ground);
-  color: var(--text-color-secondary);
-  padding: 0.25rem 0.75rem;
-}
-</style>
