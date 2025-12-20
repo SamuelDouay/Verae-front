@@ -1,6 +1,8 @@
 .auth-container {
   padding: 20px;
   gap: 15px;
+  width: fit-content;
+  margin: auto;
 }
 
 .auth-container button {
