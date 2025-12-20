@@ -1,43 +1,59 @@
 <template>
-  <div class="survey-page">
-    <h1>Page de Sondage</h1>
-    <p>Ceci est la page de sondage.</p>
+  <!-- Liste des questions avec v-for -->
+  <div v-if="surveyLoading">Chargement des questions...</div>
+  <div v-else-if="surveyError" class="error">{{ surveyError }}</div>
+  <div v-else-if="surveys.length === 0">Aucune question trouvée</div>
+  <div v-else class="surveys-list">
+    <h3>Questions ({{ surveys.length }}) :</h3>
+    <SurveyComponent v-for="survey in surveys" :key="survey.id" :survey="survey" />
   </div>
-
-<GenericDataTable
-  title="Liste des Questionnaires"
-  :columns="surveyColumns"
-  :fetch-function="fetchSurveys"
-  :paginator="true"
-  :show-search="true"
-  :show-footer="true"
-/>
 </template>
 
 <script setup lang="ts">
 import { surveyService } from '@/services/survey.api'
-import type { ColumnConfig } from '@/types/table'
-import type { Survey } from '@/types/survey'
-
-const surveyColumns: ColumnConfig<Survey>[] = [
-  { field: 'name', header: 'Titre', sortable: true },
-  { field: 'anonymization', header: 'Anonymisation', sortable: true, format: 'boolean' },
-  { field: 'description', header: 'Description', sortable: true, format: 'truncate' },
-  { field: 'userId', header: 'Créateur ID', sortable: true },
-  { field: 'quiz', header: 'Quiz', sortable: true, format: 'boolean' },
-  { field: 'active', header: 'Actif', sortable: true, format: 'boolean' },
-  { field: 'editing', header: 'Édition', sortable: true, format: 'boolean' },
-  { field: 'shareToken', header: 'Token' },
-  { field: 'public', header: 'Public', sortable: true, format: 'boolean' }
-]
-
 import { useAuthStore } from '@/stores/auth'
+import SurveyComponent from '@/components/SurveyComponent.vue'
+import type { Survey } from '@/types/survey'
+import { ref, watch } from 'vue'
 
-const authStore = useAuthStore();
+const surveys = ref<Survey[]>([])
+const surveyLoading = ref(false)
+const surveyError = ref<string | null>(null)
 
+const authStore = useAuthStore()
 
-const fetchSurveys = async () => {
-  console.log("Fetching surveys for user ID:", authStore.user?.name);
-  return surveyService.getServeysByUser(authStore.user?.id);
+const loadSurveys = async () => {
+  surveyLoading.value = true
+  surveyError.value = null
+  try {
+    surveys.value = await surveyService.getServeysByUser(authStore.user?.id)
+  } catch (err) {
+    surveyError.value = 'Erreur lors du chargement des sondages.'
+    surveys.value = []
+    console.error(err)
+  } finally {
+    surveyLoading.value = false
+  }
 }
+
+watch(
+  authStore,
+  () => {
+    if (authStore.user) {
+      loadSurveys()
+    }
+  },
+  { immediate: true },
+)
 </script>
+
+<style scoped>
+.surveys-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.error {
+  color: red;
+}
+</style>

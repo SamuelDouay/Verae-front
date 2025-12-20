@@ -130,7 +130,7 @@ watch(surveyId, () => {
   if (survey.value) {
     loadQuestions()
   }
-})
+}, { immediate: true })
 </script>
 
 <style scoped>

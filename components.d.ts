@@ -29,6 +29,7 @@ declare module 'vue' {
     QuestionComponent: typeof import('./src/components/QuestionComponent.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SurveyComponent: typeof import('./src/components/SurveyComponent.vue')['default']
     Toast: typeof import('primevue/toast')['default']
   }
 }
@@ -52,5 +53,6 @@ declare global {
   const QuestionComponent: typeof import('./src/components/QuestionComponent.vue')['default']
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
+  const SurveyComponent: typeof import('./src/components/SurveyComponent.vue')['default']
   const Toast: typeof import('primevue/toast')['default']
 }
