@@ -1,17 +1,38 @@
 <template>
-  <header class="app-header">
+  <header>
     <div class="container">
       <div class="logo">
         <h2>VERA</h2>
       </div>
 
-      <div>
+      <nav>
         <Button label="Accueil" severity="secondary" size="small" @click="$router.push('/')" />
-        <Button label="Tableau de bord" severity="secondary" size="small" @click="$router.push('/dashboard')" />
-        <Button label="Profil" severity="secondary" size="small" @click="$router.push('/profile')" />
-        <Button label="Sondage" severity="secondary" size="small" @click="$router.push('/survey')" />
-        <Button label="Administration" severity="secondary" size="small" @click="$router.push('/admin')" v-if="authStore.user?.admin === true" />
-      </div>
+        <Button
+          label="Tableau de bord"
+          severity="secondary"
+          size="small"
+          @click="$router.push('/dashboard')"
+        />
+        <Button
+          label="Profil"
+          severity="secondary"
+          size="small"
+          @click="$router.push('/profile')"
+        />
+        <Button
+          label="Sondage"
+          severity="secondary"
+          size="small"
+          @click="$router.push('/survey')"
+        />
+        <Button
+          label="Administration"
+          severity="secondary"
+          size="small"
+          @click="$router.push('/admin')"
+          v-if="authStore.user?.admin === true"
+        />
+      </nav>
 
       <div class="user-menu" v-if="authStore.isAuthenticated">
         <span>Bonjour, {{ authStore.user?.name }}</span>
@@ -40,31 +61,23 @@ const handleLogout = () => {
   })
   router.push('/login')
 }
+
 </script>
 
 <style scoped>
-.app-header {
-  background: var(--surface-section);
-  border-bottom: 1px solid var(--surface-border);
-  padding: 1rem 0;
-}
 
-.app-header .container {
+.container {
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
+  width: 90%;
+  max-width: 1400px;
 }
 
-.logo h2 {
-  margin: 0;
-  color: var(--primary-color);
-}
-
-.user-menu {
+nav, .user-menu {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 1rem;
 }
