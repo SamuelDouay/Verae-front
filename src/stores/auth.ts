@@ -107,8 +107,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (!token.value) return
 
     try {
-      const response = await userService.getMe()
-      user.value = response as User
+      user.value = await userService.getMe()
     } catch (error) {
       console.error('Erreur lors de la récupération des informations utilisateur:', error)
       logout()
