@@ -30,7 +30,10 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SurveyComponent: typeof import('./src/components/SurveyComponent.vue')['default']
+    SurveySwitch: typeof import('./src/components/SurveySwitch.vue')['default']
+    Switch: typeof import('./src/components/Switch.vue')['default']
     Toast: typeof import('primevue/toast')['default']
+    ToggleSwitch: typeof import('primevue/toggleswitch')['default']
   }
 }
 
@@ -54,5 +57,8 @@ declare global {
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
   const SurveyComponent: typeof import('./src/components/SurveyComponent.vue')['default']
+  const SurveySwitch: typeof import('./src/components/SurveySwitch.vue')['default']
+  const Switch: typeof import('./src/components/Switch.vue')['default']
   const Toast: typeof import('primevue/toast')['default']
+  const ToggleSwitch: typeof import('primevue/toggleswitch')['default']
 }

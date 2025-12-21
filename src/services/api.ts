@@ -10,14 +10,9 @@ export interface ApiResponse<T = unknown> {
 import type { ApiError } from '@/types/response'
 
 class ApiService {
-  private readonly baseURL: string
-  private readonly defaultHeaders: HeadersInit
-
-  constructor() {
-    this.baseURL = '/api'
-    this.defaultHeaders = {
-      'Content-Type': 'application/json',
-    }
+  private readonly baseURL = '/api'
+  private readonly defaultHeaders = {
+    'Content-Type': 'application/json',
   }
 
   private async request<T>(

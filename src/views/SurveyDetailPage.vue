@@ -8,10 +8,15 @@
     <template #content>
       <div>
         <p>Anonymisation : {{ survey?.anonymization }}</p>
+
         <p>Quiz : {{ survey?.quiz }}</p>
+
         <p>Actif : {{ survey?.active }}</p>
+
         <p>Édition : {{ survey?.editing }}</p>
+
         <p>Token : {{ survey?.shareToken }}</p>
+
         <p>Public : {{ survey?.public }}</p>
       </div>
       <GenericDataTable
@@ -47,7 +52,6 @@ const slug = ref(route.params.slug as string)
 const survey = ref<Survey | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
-
 // États pour les questions
 const questions = ref<Question[]>([])
 const questionsLoading = ref(false)
@@ -65,7 +69,7 @@ const questionColumns: ColumnConfig<Question>[] = [
 // Calculer un ID numérique si le slug est un nombre
 const surveyId = computed(() => {
   const s = slug.value
-  return !isNaN(Number(s)) ? Number(s) : null
+  return Number.isNaN(Number(s)) ? null : Number(s)
 })
 
 // Fonction pour charger les questions
@@ -126,11 +130,15 @@ watchEffect(async () => {
 })
 
 // Recharger les questions si l'ID change
-watch(surveyId, () => {
-  if (survey.value) {
-    loadQuestions()
-  }
-}, { immediate: true })
+watch(
+  surveyId,
+  () => {
+    if (survey.value) {
+      loadQuestions()
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <style scoped>

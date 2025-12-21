@@ -1,10 +1,10 @@
 <template>
   <!-- Liste des questions avec v-for -->
-  <div v-if="surveyLoading">Chargement des questions...</div>
+  <div v-if="surveyLoading">Chargement des sondages...</div>
   <div v-else-if="surveyError" class="error">{{ surveyError }}</div>
-  <div v-else-if="surveys.length === 0">Aucune question trouvée</div>
+  <div v-else-if="surveys.length === 0">Aucun sondage trouvé</div>
   <div v-else class="surveys-list">
-    <h3>Questions ({{ surveys.length }}) :</h3>
+    <h3>Mes sondages :</h3>
     <SurveyComponent v-for="survey in surveys" :key="survey.id" :survey="survey" />
   </div>
 </template>
