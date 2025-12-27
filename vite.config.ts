@@ -3,27 +3,24 @@ import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import vueDevTools from 'vite-plugin-vue-devtools'
-import Components from 'unplugin-vue-components/vite';
-import { PrimeVueResolver } from '@primevue/auto-import-resolver';
-
-
+import Components from 'unplugin-vue-components/vite'
+import { PrimeVueResolver } from '@primevue/auto-import-resolver'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   // Charger les variables d'environnement
   const env = loadEnv(mode, process.cwd(), '')
 
-  const allowedHosts = mode === 'production'
-    ? [env.VITE_DOMAIN]  // Uniquement votre domaine en prod
-    : ['localhost', '127.0.0.1', env.VITE_DOMAIN];  // Autoriser localhost en dev
+  const allowedHosts =
+    mode === 'production'
+      ? [env.CORS_DOMAIN] // Uniquement votre domaine en prod
+      : ['localhost', '127.0.0.1', env.CORS_DOMAIN] // Autoriser localhost en dev
 
   return {
     plugins: [
       vue(),
       Components({
-        resolvers: [
-          PrimeVueResolver()
-        ]
+        resolvers: [PrimeVueResolver()],
       }),
       vueJsx(),
       vueDevTools(),
@@ -36,31 +33,31 @@ export default defineConfig(({ mode }) => {
         'X-Frame-Options': 'DENY',
         'X-XSS-Protection': '1; mode=block',
         'Referrer-Policy': 'strict-origin-when-cross-origin',
-        'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
+        'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
       },
       fs: {
-        strict: true  // Restreint l'accès aux fichiers hors de dist/
+        strict: true, // Restreint l'accès aux fichiers hors de dist/
       },
       build: {
         // Minifier pour la production
         minify: 'terser',
         terserOptions: {
           compress: {
-            drop_console: true,  // Supprime les console.log en production
-            drop_debugger: true
-          }
+            drop_console: true, // Supprime les console.log en production
+            drop_debugger: true,
+          },
         },
         // Analyse de bundle
         rollupOptions: {
           output: {
             manualChunks: {
               vendor: ['vue', 'vue-router', 'pinia'],
-              primevue: ['primevue']
-            }
-          }
+              primevue: ['primevue'],
+            },
+          },
         },
         // Source maps seulement en dev
-        sourcemap: mode !== 'production'
+        sourcemap: mode !== 'production',
       },
       proxy: {
         '/api': {
@@ -68,16 +65,36 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
           rewrite: (path) => path.replace(/^\/api/, '/api'),
-        }
+          configure: (proxy) => {
+            proxy.on('error', (err) => {
+              console.error('❌ Erreur proxy:', err.message)
+            })
+            proxy.on('proxyReq', (proxyReq, req) => {
+              // IMPORTANT: Forcer l'Origin sur TOUTES les requêtes proxifiées
+              const origin = env.CORS_DOMAIN || 'http://localhost'
+              proxyReq.setHeader('Origin', origin)
+
+              console.log('📤 Proxy vers backend:', req.method, req.url, '→', proxyReq.path)
+              console.log('   Origin forcé:', origin)
+            })
+            proxy.on('proxyRes', (proxyRes, req) => {
+              console.log('📥 Réponse backend:', proxyRes.statusCode, req.url)
+            })
+          },
+        },
+      },
+      cors: {
+        origin: [env.CORS_DOMAIN],
+        credentials: true,
       },
       hmr: {
         protocol: 'ws',
-        host: 'localhost'
+        host: 'localhost',
       },
     },
     resolve: {
       alias: {
-        '@': fileURLToPath(new URL('./src', import.meta.url))
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
       },
     },
   }

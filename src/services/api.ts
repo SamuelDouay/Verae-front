@@ -15,11 +15,7 @@ class ApiService {
     'Content-Type': 'application/json',
   }
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {},
-    extractData: boolean = true, // Nouveau paramètre pour contrôler l'extraction
-  ): Promise<T> {
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseURL}${endpoint}`
     const authHeaders = this.getAuthHeaders()
 
@@ -59,23 +55,11 @@ class ApiService {
       }
 
       if (response.status === 204) {
-        return (extractData ? {} : { data: {} }) as T
+        return { data: {} } as T
       }
 
       const jsonResponse = (await response.json()) as ApiResponse<T>
-
-      // Si extractData est true, retourner directement data, sinon retourner l'objet complet
-      if (extractData) {
-        // Vérifier si la réponse a une propriété data
-        if ('data' in jsonResponse) {
-          return jsonResponse.data as T
-        } else {
-          // Si pas de data, retourner l'objet complet
-          return jsonResponse as unknown as T
-        }
-      } else {
-        return jsonResponse as unknown as T
-      }
+      return jsonResponse.data as T
     } catch (error) {
       if (error instanceof TypeError) {
         throw new Error(
@@ -88,125 +72,48 @@ class ApiService {
 
   // Méthodes normales qui extraient automatiquement data
   async get<T>(endpoint: string, headers?: HeadersInit): Promise<T> {
-    return this.request<T>(endpoint, { method: 'GET', headers }, true)
+    return this.request<T>(endpoint, { method: 'GET', headers })
   }
 
   async post<T>(endpoint: string, data?: unknown, headers?: HeadersInit): Promise<T> {
     const body = data ? JSON.stringify(data) : undefined
-    return this.request<T>(
-      endpoint,
-      {
-        method: 'POST',
-        body,
-        headers,
-      },
-      true,
-    )
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body,
+      headers,
+    })
   }
 
   async put<T>(endpoint: string, data?: unknown, headers?: HeadersInit): Promise<T> {
     const body = data ? JSON.stringify(data) : undefined
-    return this.request<T>(
-      endpoint,
-      {
-        method: 'PUT',
-        body,
-        headers,
-      },
-      true,
-    )
+    return this.request<T>(endpoint, {
+      method: 'PUT',
+      body,
+      headers,
+    })
   }
 
   async patch<T>(endpoint: string, data?: unknown, headers?: HeadersInit): Promise<T> {
     const body = data ? JSON.stringify(data) : undefined
-    return this.request<T>(
-      endpoint,
-      {
-        method: 'PATCH',
-        body,
-        headers,
-      },
-      true,
-    )
+    return this.request<T>(endpoint, {
+      method: 'PATCH',
+      body,
+      headers,
+    })
   }
 
   async delete<T>(endpoint: string, headers?: HeadersInit): Promise<T> {
-    return this.request<T>(endpoint, { method: 'DELETE', headers }, true)
+    return this.request<T>(endpoint, { method: 'DELETE', headers })
   }
 
-  // Méthode pour les uploads de fichiers (FormData)
   async postFormData<T>(endpoint: string, formData: FormData, headers?: HeadersInit): Promise<T> {
-    return this.request<T>(
-      endpoint,
-      {
-        method: 'POST',
-        body: formData,
-        headers: {
-          ...headers,
-        },
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        ...headers,
       },
-      true,
-    )
-  }
-
-  // NOUVELLES MÉTHODES pour récupérer la réponse complète si besoin
-  async getFullResponse<T>(endpoint: string, headers?: HeadersInit): Promise<ApiResponse<T>> {
-    return this.request<ApiResponse<T>>(endpoint, { method: 'GET', headers }, false)
-  }
-
-  async postFullResponse<T>(
-    endpoint: string,
-    data?: unknown,
-    headers?: HeadersInit,
-  ): Promise<ApiResponse<T>> {
-    const body = data ? JSON.stringify(data) : undefined
-    return this.request<ApiResponse<T>>(
-      endpoint,
-      {
-        method: 'POST',
-        body,
-        headers,
-      },
-      false,
-    )
-  }
-
-  async putFullResponse<T>(
-    endpoint: string,
-    data?: unknown,
-    headers?: HeadersInit,
-  ): Promise<ApiResponse<T>> {
-    const body = data ? JSON.stringify(data) : undefined
-    return this.request<ApiResponse<T>>(
-      endpoint,
-      {
-        method: 'PUT',
-        body,
-        headers,
-      },
-      false,
-    )
-  }
-
-  async patchFullResponse<T>(
-    endpoint: string,
-    data?: unknown,
-    headers?: HeadersInit,
-  ): Promise<ApiResponse<T>> {
-    const body = data ? JSON.stringify(data) : undefined
-    return this.request<ApiResponse<T>>(
-      endpoint,
-      {
-        method: 'PATCH',
-        body,
-        headers,
-      },
-      false,
-    )
-  }
-
-  async deleteFullResponse<T>(endpoint: string, headers?: HeadersInit): Promise<ApiResponse<T>> {
-    return this.request<ApiResponse<T>>(endpoint, { method: 'DELETE', headers }, false)
+    })
   }
 
   getAuthHeaders(token?: string): HeadersInit {
@@ -218,7 +125,6 @@ class ApiService {
     }
   }
 
-  // Méthodes utilitaires
   setToken(token: string): void {
     localStorage.setItem('token', token)
   }
