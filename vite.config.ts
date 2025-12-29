@@ -6,15 +6,12 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import Components from 'unplugin-vue-components/vite'
 import { PrimeVueResolver } from '@primevue/auto-import-resolver'
 
-// https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  // Charger les variables d'environnement
   const env = loadEnv(mode, process.cwd(), '')
-
   const allowedHosts =
     mode === 'production'
-      ? [env.CORS_DOMAIN] // Uniquement votre domaine en prod
-      : ['localhost', '127.0.0.1', env.CORS_DOMAIN] // Autoriser localhost en dev
+      ? [env.CORS_DOMAIN]
+      : ['localhost', '127.0.0.1', env.CORS_DOMAIN]
 
   return {
     plugins: [
@@ -36,28 +33,7 @@ export default defineConfig(({ mode }) => {
         'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
       },
       fs: {
-        strict: true, // Restreint l'accès aux fichiers hors de dist/
-      },
-      build: {
-        // Minifier pour la production
-        minify: 'terser',
-        terserOptions: {
-          compress: {
-            drop_console: true, // Supprime les console.log en production
-            drop_debugger: true,
-          },
-        },
-        // Analyse de bundle
-        rollupOptions: {
-          output: {
-            manualChunks: {
-              vendor: ['vue', 'vue-router', 'pinia'],
-              primevue: ['primevue'],
-            },
-          },
-        },
-        // Source maps seulement en dev
-        sourcemap: mode !== 'production',
+        strict: true,
       },
       proxy: {
         '/api': {
@@ -70,10 +46,8 @@ export default defineConfig(({ mode }) => {
               console.error('❌ Erreur proxy:', err.message)
             })
             proxy.on('proxyReq', (proxyReq, req) => {
-              // IMPORTANT: Forcer l'Origin sur TOUTES les requêtes proxifiées
               const origin = env.CORS_DOMAIN || 'http://localhost'
               proxyReq.setHeader('Origin', origin)
-
               console.log('📤 Proxy vers backend:', req.method, req.url, '→', proxyReq.path)
               console.log('   Origin forcé:', origin)
             })
@@ -91,6 +65,42 @@ export default defineConfig(({ mode }) => {
         protocol: 'ws',
         host: 'localhost',
       },
+    },
+    build: {
+      minify: 'esbuild',
+      esbuild: mode === 'production' ? {
+        drop: ['console', 'debugger'],
+      } : undefined,
+      // Augmenter la limite si nécessaire (optionnel)
+      chunkSizeWarningLimit: 600,
+      rollupOptions: {
+        output: {
+          manualChunks: (id) => {
+            // Séparer node_modules en chunks distincts
+            if (id.includes('node_modules')) {
+              // Vue core
+              if (id.includes('vue') || id.includes('@vue')) {
+                return 'vendor-vue'
+              }
+              // PrimeVue (probablement la plus grosse dépendance)
+              if (id.includes('primevue') || id.includes('@primevue')) {
+                return 'vendor-primevue'
+              }
+              // Router et state management
+              if (id.includes('vue-router') || id.includes('pinia')) {
+                return 'vendor-router-state'
+              }
+              // Autres bibliothèques
+              return 'vendor-other'
+            }
+          },
+          // Nommer les chunks de manière cohérente
+          chunkFileNames: 'assets/js/[name]-[hash].js',
+          entryFileNames: 'assets/js/[name]-[hash].js',
+          assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+        },
+      },
+      sourcemap: mode !== 'production',
     },
     resolve: {
       alias: {
