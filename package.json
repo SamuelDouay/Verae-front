@@ -13,11 +13,16 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix --cache",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "serve:prod": "node server.js"
   },
   "dependencies": {
     "@primeuix/themes": "^1.2.5",
     "@primevue/forms": "^4.4.1",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "helmet": "^8.1.0",
     "pinia": "^3.0.3",
     "primevue": "^4.4.1",
     "vue": "^3.5.22",
