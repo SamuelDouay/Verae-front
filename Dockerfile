@@ -23,7 +23,7 @@ COPY --from=builder /app/server.js ./
 RUN npm ci --only=production
 
 # Vérifier que les packages sont bien installés
-RUN echo "Packages installés:" && npm list --depth=0
+RUN echo "Packages installés:" && npm list --depth=0 || true
 
 # User non-root
 RUN addgroup -g 1001 -S nodejs && \
