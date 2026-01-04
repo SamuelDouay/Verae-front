@@ -1,10 +1,8 @@
-// src/router/index.ts
-import { createRouter, createWebHistory} from 'vue-router'
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { safeRedirect, generateSecureRedirect } from '@/utils/navigation'
-import type { RouteConfig } from '@/types/router'
 
-const routes: RouteConfig[] = [
+const routes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: 'login',
@@ -56,6 +54,10 @@ const routes: RouteConfig[] = [
     name: 'admin',
     component: () => import('@/views/AdminPage.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/'
   }
 ]
 
@@ -64,35 +66,31 @@ const router = createRouter({
   routes
 })
 
-// Garde de route AVEC DEBUG
+// Garde de route
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
 
-  console.log('🔍 DEBUG Router - Navigation:', {
-    from: from.fullPath,
-    to: to.fullPath,
-    requiresAuth: to.meta.requiresAuth,
-    isAuthenticated: authStore.isAuthenticated,
-    queryRedirect: to.query.redirect
-  })
+  console.log('🔀 Navigation:', from.fullPath, '→', to.fullPath)
 
+  // 1. Route nécessitant une authentification
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-
-    const redirectUrl = generateSecureRedirect(to.fullPath)
-
-    next(redirectUrl)
+    console.log('🔒 Accès refusé, redirection vers login')
+    next(generateSecureRedirect(to.fullPath))
     return
   }
 
   // 2. Route interdite aux utilisateurs connectés
   if (to.meta.requiresGuest && authStore.isAuthenticated) {
+    console.log('⚠️ Utilisateur déjà connecté')
 
+    // Gestion spéciale pour le login avec redirect
     if (to.name === 'login' && to.query.redirect) {
       const redirectParam = Array.isArray(to.query.redirect)
         ? to.query.redirect[0]
         : to.query.redirect
-      const safePath = safeRedirect(redirectParam, '/')
 
+      const safePath = safeRedirect(redirectParam, '/')
+      console.log('🎯 Redirection directe après login:', safePath)
       next(safePath)
       return
     }
@@ -100,6 +98,8 @@ router.beforeEach((to, from, next) => {
     next('/')
     return
   }
+
+  // 3. Navigation normale
   next()
 })
 
