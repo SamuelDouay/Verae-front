@@ -3,19 +3,9 @@ FROM node:22.20.0-alpine AS builder
 
 WORKDIR /app
 
-# Copier package files
 COPY package*.json ./
-
-# Installer npm-run-all globalement ou localement
-RUN npm install -g npm-run-all
-
-# Installer toutes les dépendances
-RUN npm ci
-
-# Copier le code source
+RUN npm ci --include=dev
 COPY . .
-
-# Build
 RUN npm run build
 
 # Stage 2: Production
@@ -23,17 +13,17 @@ FROM node:22.20.0-alpine
 
 WORKDIR /app
 
-# Copier package.json
-COPY package*.json ./
+# Copier uniquement les fichiers nécessaires
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/server.js ./  
+# si server.js existe
 
-# Installer seulement production
+# Installer UNIQUEMENT express, compression, helmet, cors
 RUN npm ci --only=production
 
-# Copier dist
-COPY --from=builder /app/dist ./dist
-
-# Copier serveur
-COPY server.js ./
+# Vérifier que les packages sont bien installés
+RUN echo "Packages installés:" && npm list --depth=0
 
 # User non-root
 RUN addgroup -g 1001 -S nodejs && \
@@ -47,4 +37,5 @@ ENV PORT=3000
 
 EXPOSE 3000
 
+# Lancer le serveur
 CMD ["node", "server.js"]

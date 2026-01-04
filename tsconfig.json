@@ -40,6 +40,6 @@
     "src/**/*.d.ts",
     "vite.config.*",
     "vitest.config.*"
-  ],
+, "server.js"  ],
   "exclude": ["node_modules", "dist", "src/**/__tests__/*", "src/**/*.spec.ts", "src/**/*.test.ts"]
 }
