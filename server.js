@@ -154,11 +154,9 @@ app.use((err, req, res, next) => {
   })
 })
 
-const PORT = process.env.PORT
-
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Serveur démarré sur le port ${PORT}`)
-  console.log(`📍 CORS origin: ${corsOrigin}`)
+  console.log(`✅ Serveur démarré sur le port ${process.env.PORT}`)
+  console.log(`📍 CORS origin: ${process.env.CORS_DOMAIN}`)
   console.log(`🔗 API backend: ${process.env.VITE_API_URL}`)
   console.log(`🛡️  CSP: STRICT `)
 })
