@@ -142,12 +142,7 @@ app.post('/csp-report', express.json({ type: 'application/csp-report' }), (req, 
 })
 
 // SPA fallback - TOUJOURS À LA FIN
-app.get('*', (req, res) => {
-  // Ignorer les endpoints API et autres
-  if (req.path.startsWith('/api') || req.path === '/health' || req.path === '/csp-report') {
-    return res.status(404).send()
-  }
-
+app.get(/^(?!\/?(api|health|csp-report|\.well-known)).*$/, (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'))
 })
 
