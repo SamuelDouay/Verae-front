@@ -154,7 +154,7 @@ app.use((err, req, res, next) => {
   })
 })
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(process.env.PORT, '0.0.0.0', () => {
   console.log(`✅ Serveur démarré sur le port ${process.env.PORT}`)
   console.log(`📍 CORS origin: ${process.env.CORS_DOMAIN}`)
   console.log(`🔗 API backend: ${process.env.VITE_API_URL}`)
