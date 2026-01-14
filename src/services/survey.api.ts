@@ -8,7 +8,6 @@ class SurveyService extends BaseService<Survey> {
   }
 
   async getServeysByUser(userId: number | undefined): Promise<Survey[]> {
-    console.log('Fetching surveys for user:', userId);
     return apiService.get<Survey[]>(`/survey/user/${userId}`);
   }
 }
