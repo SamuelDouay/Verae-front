@@ -11,6 +11,7 @@ import type { ApiError } from '@/types/response'
 
 class ApiService {
   private readonly baseURL = '/api'
+  private readonly isWebClient = true;
   private readonly defaultHeaders = {
     'Content-Type': 'application/json',
   }
@@ -42,6 +43,10 @@ class ApiService {
       console.log('🔐 CSRF envoyé pour', method, endpoint)
     } else if (isMutating) {
       console.warn('⚠️ Requête mutante sans token CSRF:', method, endpoint)
+    }
+
+    if (this.isWebClient) {
+      headers['X-Client-Type'] = 'web'
     }
 
     const config: RequestInit = {
