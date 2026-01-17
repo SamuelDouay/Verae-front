@@ -9,11 +9,11 @@ class UserService extends BaseService<User> {
 
   // Surcharger ou ajouter des méthodes spécifiques
   async getMe(): Promise<User> {
-    return apiService.get<User>('/users/me')
+    return apiService.http.get<User>('/users/me')
   }
 
   async updateProfile(data: Partial<User>): Promise<User> {
-    return apiService.put<User>('/users/profile', data)
+    return apiService.http.put<User>('/users/profile', data)
   }
 }
 

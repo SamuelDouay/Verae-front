@@ -1,302 +1,183 @@
-// Types pour les réponses API
-export interface ApiResponse<T = unknown> {
+export interface ApiResponse<T = undefined> {
   data?: T
   message?: string
-  token?: string
-  [key: string]: unknown // Pour les propriétés additionnelles
+  [key: string]: unknown
 }
 
-// Type pour les erreurs API
-import type { ApiError } from '@/types/response'
+export interface ApiError extends Error {
+  status?: string
+  code?: number
+  data?: undefined
+}
 
+// api.service.ts
 class ApiService {
-  private readonly baseURL = '/api'
-  private readonly isWebClient = true;
-  private readonly defaultHeaders = {
-    'Content-Type': 'application/json',
-  }
-
-  // Stockage du token CSRF en mémoire
+  private baseURL = '/api'
   private csrfToken: string | null = null
-  private csrfInitialized = false
-  private csrfPromise: Promise<void> | null = null
+  private currentUser: unknown = null
 
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${this.baseURL}${endpoint}`
-    const authHeaders = this.getAuthHeaders()
-
-    const method = options.method?.toUpperCase() || 'GET'
-    const isMutating = ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)
-
-    if (isMutating && !this.csrfInitialized) {
-      await this.ensureCsrfInitialized()
+  private getHeaders(isMutating: boolean): Record<string, string> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-Client-Type': 'web',
     }
-
-    const headers = {
-      ...this.defaultHeaders,
-      ...authHeaders,
-      ...options.headers,
-    } as Record<string, string>
 
     if (isMutating && this.csrfToken) {
-      headers['x-csrf-token'] = this.csrfToken
-      console.log('🔐 CSRF envoyé pour', method, endpoint)
-    } else if (isMutating) {
-      console.warn('⚠️ Requête mutante sans token CSRF:', method, endpoint)
+      headers['X-CSRF-Token'] = this.csrfToken
     }
 
-    if (this.isWebClient) {
-      headers['X-Client-Type'] = 'web'
+    return headers
+  }
+
+  private isMutatingMethod(method: string): boolean {
+    return ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method.toUpperCase())
+  }
+
+  private handleErrorResponse = async (response: Response): Promise<never> => {
+    if (response.status === 403) {
+      const errorText = await response.text()
+      if (errorText.includes('CSRF')) {
+        this.csrfToken = null
+        throw new Error('Token CSRF invalide')
+      }
     }
+
+    let errorMessage = `Erreur ${response.status}: ${response.statusText}`
+
+    try {
+      const errorData = await response.json()
+      errorMessage = errorData.message || errorData.data || errorMessage
+    } catch {
+      // Si ce n'est pas du JSON, on garde le message par défaut
+    }
+
+    const error: ApiError = new Error(errorMessage)
+    error.status = response.statusText
+    error.code = response.status
+
+    throw error
+  }
+
+  private extractCsrfToken = (response: Response): void => {
+    const token = response.headers.get('x-csrftoken')
+    if (token) {
+      this.csrfToken = token
+    }
+  }
+
+  async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const url = `${this.baseURL}${endpoint}`
+    const isMutating = this.isMutatingMethod(options.method || 'GET')
+    const isAuthEndpoint = endpoint.startsWith('/auth/')
 
     const config: RequestInit = {
       ...options,
-      credentials: 'include' as RequestCredentials,
-      headers,
+      credentials: 'include',
+      headers: {
+        ...this.getHeaders(isMutating && !isAuthEndpoint),
+        ...options.headers,
+      },
     }
 
     try {
       const response = await fetch(url, config)
 
-      if (response.type === 'opaque' || response.status === 0) {
-        throw new Error('Erreur CORS: Impossible de contacter le serveur')
-      }
-
-      // 3. Gérer les erreurs CSRF (403)
-      if (response.status === 403) {
-        const errorText = await response.text()
-        if (errorText.includes('CSRF')) {
-          console.log('Token CSRF invalide, tentative de renouvellement...')
-
-          // Nettoyer et réessayer une fois
-          this.csrfToken = null
-          this.csrfInitialized = false
-
-          if (isMutating) {
-            // Réessayer avec un nouveau token
-            return this.retryRequestWithNewCsrf<T>(endpoint, options, authHeaders)
-          }
-        }
-      }
-
       if (!response.ok) {
-        let errorMessage = `Erreur ${response.status}: ${response.statusText}`
-
-        try {
-          const errorData = await response.json()
-          errorMessage = errorData.message || errorData.data || errorMessage
-        } catch {
-          // Si la réponse n'est pas du JSON, on utilise le statut
-        }
-
-        const error: ApiError = {
-          name: 'ApiError',
-          message: errorMessage,
-          status: response.statusText,
-          code: response.status,
-        }
-        throw error
+        return this.handleErrorResponse(response)
       }
 
-      const newCsrfToken = response.headers.get('x-csrf-token')
-      if (newCsrfToken) {
-        this.csrfToken = newCsrfToken
-        this.csrfInitialized = true
-        console.log('🔐 Token CSRF reçu:', newCsrfToken.substring(0, 10) + '...')
-      }
+      this.extractCsrfToken(response)
 
       if (response.status === 204) {
-        return { data: {} } as T
+        return {} as T
       }
 
-      const jsonResponse = (await response.json()) as ApiResponse<T>
-      return jsonResponse.data as T
+      const data = await response.json()
+
+      // Gérer les endpoints spéciaux
+      if (isAuthEndpoint) {
+        this.handleSpecialEndpoints(endpoint, data.data)
+      }
+
+      return data.data || data
     } catch (error) {
       if (error instanceof TypeError) {
-        throw new Error(
-          'Erreur de connexion au serveur. Vérifiez que le serveur backend est démarré et accessible.',
-        )
+        throw new Error('Erreur de connexion au serveur')
       }
       throw error
     }
   }
 
-  /**
-   * Réessaye une requête après avoir obtenu un nouveau token CSRF
-   */
-  private async retryRequestWithNewCsrf<T>(
-    endpoint: string,
-    options: RequestInit,
-    authHeaders: HeadersInit
-  ): Promise<T> {
+  private handleSpecialEndpoints(endpoint: string, data: any): void {
+    switch (endpoint) {
+      case '/auth/login':
+        this.currentUser = data.user
+        break
+      case '/auth/logout':
+        this.currentUser = null
+        this.csrfToken = null
+        break
+      case '/auth/register':
+        this.currentUser = data.user
+        break
+    }
+  }
+
+  async initializeCsrfToken(): Promise<void> {
     try {
-      await this.initializeCsrf()
-
-      if (!this.csrfToken) {
-        throw new Error('Impossible d\'obtenir un nouveau token CSRF')
-      }
-
-      const headers = {
-        ...this.defaultHeaders,
-        ...authHeaders,
-        ...options.headers,
-        'x-csrf-token': this.csrfToken,
-      }
-
-      const config: RequestInit = {
-        ...options,
+      const response = await fetch(`${this.baseURL}/health`, {
         credentials: 'include',
-        headers,
+        headers: { 'X-Client-Type': 'web' },
+      })
+
+      if (response.ok) {
+        this.extractCsrfToken(response)
       }
-
-      const response = await fetch(`${this.baseURL}${endpoint}`, config)
-
-      if (!response.ok) {
-        throw new Error(`Échec après réessai CSRF: ${response.status}`)
-      }
-
-      // Mettre à jour le token depuis la réponse
-      const newToken = response.headers.get('x-csrf-token')
-      if (newToken) {
-        this.csrfToken = newToken
-      }
-
-      if (response.status === 204) {
-        return { data: {} } as T
-      }
-
-      const jsonResponse = (await response.json()) as ApiResponse<T>
-      return jsonResponse.data as T
-    } catch (retryError) {
-      console.error('Échec de la réessai CSRF:', retryError)
-      throw retryError
+    } catch (error) {
+      console.warn('Échec initialisation CSRF:', error)
     }
   }
 
-  /**
-   * Initialise le token CSRF avec une requête GET
-   */
-  private async initializeCsrf(): Promise<void> {
-    if (this.csrfInitialized) return
-    if (this.csrfPromise) return this.csrfPromise
+  // Méthodes HTTP simplifiées
+  http = {
+    get: <T>(endpoint: string, headers?: HeadersInit) =>
+      this.request<T>(endpoint, { method: 'GET', headers }),
 
-    this.csrfPromise = (async () => {
+    post: <T>(endpoint: string, data?: unknown, headers?: HeadersInit) =>
+      this.request<T>(endpoint, { method: 'POST', body: JSON.stringify(data), headers }),
+
+    put: <T>(endpoint: string, data?: unknown, headers?: HeadersInit) =>
+      this.request<T>(endpoint, { method: 'PUT', body: JSON.stringify(data), headers }),
+
+    patch: <T>(endpoint: string, data?: unknown, headers?: HeadersInit) =>
+      this.request<T>(endpoint, { method: 'PATCH', body: JSON.stringify(data), headers }),
+
+    delete: <T>(endpoint: string, headers?: HeadersInit) =>
+      this.request<T>(endpoint, { method: 'DELETE', headers }),
+  }
+
+  // Gestion utilisateur
+  auth = {
+    getCurrentUser: () => this.currentUser,
+    setCurrentUser: (user: any) => {
+      this.currentUser = user
+    },
+    clear: () => {
+      this.currentUser = null
+      this.csrfToken = null
+    },
+
+    check: async (): Promise<boolean> => {
       try {
-        const response = await fetch(`${this.baseURL}/admin/health`, {
-          method: 'GET',
-          credentials: 'include',
-          headers: this.getAuthHeaders(),
-        })
-
-        if (response.ok) {
-          const token = response.headers.get('x-csrf-token')
-          if (token) {
-            this.csrfToken = token
-            this.csrfInitialized = true
-            console.log('🔐 CSRF token initialisé')
-          } else {
-            console.warn('⚠️ Aucun token CSRF dans la réponse')
-          }
-        }
-      } catch (error) {
-        console.warn('Erreur lors de l\'initialisation CSRF:', error)
-        throw error
-      } finally {
-        this.csrfPromise = null
+        const user = await this.http.get('/users/me')
+        return !!user
+      } catch {
+        this.currentUser = null
+        return false
       }
-    })()
-
-    return this.csrfPromise
-  }
-
-  /**
-   * S'assure que le CSRF est initialisé
-   */
-  private async ensureCsrfInitialized(): Promise<void> {
-    if (!this.csrfInitialized) {
-      await this.initializeCsrf()
-    }
-  }
-
-  async get<T>(endpoint: string, headers?: HeadersInit): Promise<T> {
-    return this.request<T>(endpoint, { method: 'GET', headers })
-  }
-
-  async post<T>(endpoint: string, data?: unknown, headers?: HeadersInit): Promise<T> {
-    const body = data ? JSON.stringify(data) : undefined
-    return this.request<T>(endpoint, {
-      method: 'POST',
-      body,
-      headers,
-    })
-  }
-
-  async put<T>(endpoint: string, data?: unknown, headers?: HeadersInit): Promise<T> {
-    const body = data ? JSON.stringify(data) : undefined
-    return this.request<T>(endpoint, {
-      method: 'PUT',
-      body,
-      headers,
-    })
-  }
-
-  async patch<T>(endpoint: string, data?: unknown, headers?: HeadersInit): Promise<T> {
-    const body = data ? JSON.stringify(data) : undefined
-    return this.request<T>(endpoint, {
-      method: 'PATCH',
-      body,
-      headers,
-    })
-  }
-
-  async delete<T>(endpoint: string, headers?: HeadersInit): Promise<T> {
-    return this.request<T>(endpoint, { method: 'DELETE', headers })
-  }
-
-  async postFormData<T>(endpoint: string, formData: FormData, headers?: HeadersInit): Promise<T> {
-    // Pour FormData, ne pas ajouter Content-Type (le navigateur le fera)
-    const { 'Content-Type': _, ...otherHeaders } = this.defaultHeaders
-
-    return this.request<T>(endpoint, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        ...otherHeaders,
-        ...this.getAuthHeaders(),
-        ...headers,
-      },
-    })
-  }
-
-  getAuthHeaders(token?: string): HeadersInit {
-    const authToken = token || localStorage.getItem('token')
-    if (!authToken) return {}
-
-    return {
-      Authorization: `Bearer ${authToken}`,
-    }
-  }
-
-  setToken(token: string): void {
-    localStorage.setItem('token', token)
-    // Réinitialiser le CSRF quand le token change
-    this.csrfToken = null
-    this.csrfInitialized = false
-  }
-
-  clearToken(): void {
-    localStorage.removeItem('token')
-    this.csrfToken = null
-    this.csrfInitialized = false
-  }
-
-  hasToken(): boolean {
-    try {
-      return !!localStorage.getItem('token')
-    } catch {
-      return false
-    }
+    },
   }
 }
 
 export const apiService = new ApiService()
+export default apiService

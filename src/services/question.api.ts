@@ -9,11 +9,11 @@ class QuestionService extends BaseService<Question> {
 
   // Méthodes spécifiques aux questions
   async getByCategory(categoryId: number): Promise<Question[]> {
-    return apiService.get<Question[]>(`/questions/category/${categoryId}`);
+    return apiService.http.get<Question[]>(`/questions/category/${categoryId}`);
   }
 
   async getByIdSurvey(surveyId: number): Promise<Question[]> {
-    return apiService.get<Question[]>(`/questions/survey/${surveyId}`);
+    return apiService.http.get<Question[]>(`/questions/survey/${surveyId}`);
   }
 }
 
